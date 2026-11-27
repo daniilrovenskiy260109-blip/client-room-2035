@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Client Room, 2035 — Management Consultant</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0d0c'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='%23f3ecdf' font-family='Georgia' font-size='11'%3E04%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f4f0e8;
+      --sheet: #fbf8f3;
+      --ink: #1b1916;
+      --muted: #6e675f;
+      --faint: #8a8278;
+      --line: #d8d0c4;
+      --line-strong: #1b1916;
+      --does: #1f6a4c;
+      --helps: #9a5b16;
+      --human: #8c3b34;
+      --rail: #161412;
+      --rail-text: #f4f0e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background: var(--rail);
+      color: var(--ink);
+      font-family: Outfit, "Segoe UI", sans-serif;
+      font-weight: 300;
+      font-size: 16.5px;
+      line-height: 1.55;
+    }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--helps); outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 232px minmax(0, 1fr);
+    }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 26px 24px;
+      display: flex;
+      flex-direction: column;
+      background: var(--rail);
+      color: var(--rail-text);
+    }
+    .rail-mark, .rail-meta, #status {
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #a3988c;
+    }
+    .rail-mark { margin: 0 0 28px; }
+    .rail-role {
+      margin: 0 0 48px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 500;
+      font-size: 26px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .rail-nav { display: flex; flex-direction: column; gap: 2px; }
+    .rail-nav button {
+      text-align: left;
+      padding: 7px 0;
+      color: #8d847a;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .rail-nav button[aria-pressed="true"] { color: var(--rail-text); }
+    .rail-nav button:hover { color: var(--rail-text); }
+    #status { margin-top: auto; max-width: 18ch; line-height: 1.45; }
+    .rail-meta { margin: 18px 0 0; line-height: 1.7; }
+
+    .sheet {
+      background: var(--paper);
+      min-height: 100vh;
+    }
+    .stage { padding: 42px 52px 64px; max-width: 1180px; }
+
+    .kicker, .when, .num, .cat, .ref, .who {
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .kicker { margin: 0 0 10px; color: var(--helps); }
+    .when, .num, .cat, .ref { color: var(--faint); }
+    h1, h2, h3, .brief h2 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 0.9;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(64px, 7vw, 104px);
+    }
+    h1 em { font-style: italic; }
+    .deck, .quiet { color: var(--muted); }
+    .deck { max-width: 38ch; margin: 18px 0 0; font-size: 18px; }
+
+    .room-layout, .day-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.78fr);
+      gap: 48px;
+      align-items: start;
+      margin-top: 28px;
+    }
+
+    .plan {
+      position: relative;
+      background: var(--sheet);
+      border: 1px solid var(--ink);
+      min-height: 420px;
+    }
+    .plan svg { width: 100%; height: auto; display: block; }
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--ink);
+      background: var(--sheet);
+      color: var(--ink);
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 10px;
+      padding: 0;
+    }
+    .pin span {
+      position: absolute;
+      left: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      font-family: Outfit, sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+    }
+    .pin[data-label="left"] span { left: auto; right: 36px; }
+    .pin[data-label="up"] span {
+      left: 50%; right: auto; top: auto; bottom: 34px;
+      transform: translateX(-50%);
+    }
+    .pin[data-label="down"] span {
+      left: 50%; top: 34px; transform: translateX(-50%);
+    }
+    .pin.is-on, .pin:hover { background: var(--ink); color: var(--paper); }
+
+    .brief { padding-top: 4px; }
+    .brief h2 { font-size: 52px; margin: 8px 0 14px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); display: inline-block; }
+    .tag.does { color: var(--does); }
+    .tag.does i { background: var(--does); }
+    .tag.helps { color: var(--helps); }
+    .tag.helps i { background: var(--helps); }
+    .tag.human { color: var(--human); }
+    .tag.human i { background: var(--human); }
+    .brief p { margin: 0 0 12px; }
+    .station-list { list-style: none; margin: 22px 0 0; padding: 0; }
+    .station-list button {
+      width: 100%;
+      text-align: left;
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      gap: 8px;
+      align-items: baseline;
+      padding: 11px 0;
+      border-top: 1px solid var(--line);
+    }
+    .station-list li:last-child button { border-bottom: 1px solid var(--line); }
+    .station-list .name { color: var(--ink); font-weight: 400; }
+    .station-list button:hover .name { text-decoration: underline; text-underline-offset: 3px; }
+
+    .matrix-head { max-width: 640px; }
+    .matrix-head h2 { font-size: clamp(52px, 6vw, 80px); margin: 0 0 14px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 22px; }
+    .filters button {
+      padding: 0 0 4px;
+      color: var(--muted);
+      border-bottom: 1px solid transparent;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+    }
+    .filters button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+    .cols {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      margin-top: 28px;
+      border-top: 1px solid var(--ink);
+    }
+    .col {
+      padding: 22px 22px 8px 0;
+      border-right: 1px solid var(--line);
+      transition: opacity 0.2s ease;
+    }
+    .col:last-child { border-right: 0; padding-right: 0; }
+    .col:not(:first-child) { padding-left: 22px; }
+    .col.dim { opacity: 0.28; }
+    .col header h3 { font-size: 40px; margin: 8px 0 10px; }
+    .col header p { margin: 0; color: var(--muted); font-size: 15px; }
+    .card { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .card h4 { margin: 6px 0 8px; font-size: 17px; font-weight: 500; }
+    .card p { margin: 0 0 8px; font-size: 15px; }
+    .card p:last-child { margin: 0; }
+
+    .day-layout h2 { font-size: clamp(52px, 6vw, 80px); margin: 0 0 12px; }
+    .hours {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin: 26px 0 0;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+    }
+    .hours button {
+      text-align: left;
+      padding: 14px 14px 14px 0;
+      border-left: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .hours button:first-child { border-left: 0; }
+    .hours button strong {
+      display: block;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      color: var(--faint);
+    }
+    .hours button[aria-pressed="true"] { color: var(--ink); }
+    .hours button[aria-pressed="true"] strong { color: var(--helps); }
+    .block {
+      display: grid;
+      grid-template-columns: 140px 1fr 1fr;
+      gap: 22px;
+      padding: 26px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .block.dim { opacity: 0.32; }
+    .block h3 { font-size: 42px; margin: 0; }
+    .who { margin: 0 0 8px; }
+    .you .who { color: var(--human); }
+    .ai .who { color: var(--does); }
+    .block p { margin: 0 0 10px; }
+    .signoff {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: start;
+    }
+    .signoff h2 { font-size: 48px; }
+    .sign {
+      margin-top: 8px;
+      padding: 8px 0;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 32px;
+      font-style: italic;
+      border-bottom: 1px solid var(--ink);
+      border-radius: 0;
+    }
+    .sign:disabled { color: var(--human); cursor: default; }
+    .stamp {
+      display: none;
+      width: 104px;
+      height: 104px;
+      margin-bottom: 16px;
+      border: 1.5px solid var(--human);
+      color: var(--human);
+      border-radius: 50%;
+      place-items: center;
+      text-align: center;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transform: rotate(-8deg);
+      line-height: 1.35;
+    }
+    .signoff.is-signed .stamp { display: grid; }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .rail {
+        position: sticky;
+        top: 0;
+        height: auto;
+        z-index: 5;
+        padding: 16px;
+      }
+      .rail-role, .rail-meta { display: none; }
+      .rail-nav { flex-direction: row; gap: 18px; }
+      .rail-nav button { font-size: 28px; width: auto; }
+      #status { display: none; }
+      .stage { padding: 28px 18px 48px; }
+      .room-layout, .day-layout, .block, .signoff, .cols, .hours { grid-template-columns: 1fr; }
+      .col, .col:not(:first-child) { padding: 18px 0; border-right: 0; border-top: 1px solid var(--line); }
+      .cols { border-top: 0; }
+      .hours button { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+      .hours button:first-child { border-top: 0; }
+      .pin span { display: none; }
+      h1 { font-size: 58px; }
+    }
+    @media print {
+      .rail, .filters, .sign { display: none; }
+      .app { display: block; }
+      .view { display: block !important; }
+      .col.dim, .block.dim { opacity: 1; }
+      body, .sheet { background: white; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <nav class="rail" aria-label="Sections">
+      <p class="rail-mark">Room 04</p>
+      <p class="rail-role">Management consultant</p>
+      <div class="rail-nav">
+        <button type="button" data-screen="room" aria-pressed="true">Room</button>
+        <button type="button" data-screen="matrix" aria-pressed="false">Matrix</button>
+        <button type="button" data-screen="day" aria-pressed="false">The day</button>
+      </div>
+      <p id="status">Six tasks on the table</p>
+      <p class="rail-meta">AUT Tashkent<br>14 March 2035<br>08:30</p>
+    </nav>
+    <div class="sheet">
+    <main class="stage">
+      <section class="view" id="room">
+        <div class="room-layout">
+          <div>
+            <p class="kicker">How AI will change my career</p>
+            <h1>The client<br />room, <em>2035.</em></h1>
+            <p class="deck">A management consultant still walks into a room with a company that has to choose. By 2035 the numbers are already on the wall. The choice is not.</p>
+            <div class="plan">
+              <svg viewBox="0 0 760 520" role="img" aria-labelledby="planTitle planDesc">
+                <title id="planTitle">Plan of a client workshop in 2035</title>
+                <desc id="planDesc">A meeting room seen from above: a screen on the far wall, a long table, a window, and six stations.</desc>
+                <rect x="28" y="24" width="704" height="472" rx="0" fill="#fbf8f3" stroke="#1b1916" />
+                <text x="48" y="52" fill="#8a8278" font-family="IBM Plex Mono, monospace" font-size="12" letter-spacing="1.6">CLIENT ROOM · VIEW FROM ABOVE</text>
+                <rect x="48" y="78" width="46" height="120" fill="none" stroke="#1b1916" />
+                <text x="48" y="216" fill="#6e675f" font-family="IBM Plex Mono, monospace" font-size="11">WINDOW</text>
+                <rect x="250" y="86" width="230" height="58" fill="none" stroke="#1b1916" />
+                <rect x="266" y="102" width="120" height="5" fill="#1b1916" />
+                <rect x="266" y="114" width="180" height="5" fill="#8a8278" />
+                <rect x="266" y="126" width="84" height="5" fill="#9a5b16" />
+                <text x="266" y="156" fill="#1b1916" font-family="IBM Plex Mono, monospace" font-size="11">WALL SCREEN</text>
+                <rect x="190" y="200" width="390" height="175" rx="0" fill="none" stroke="#1b1916" />
+                <text x="206" y="222" fill="#8a8278" font-family="IBM Plex Mono, monospace" font-size="11">TABLE</text>
+                <rect x="620" y="250" width="70" height="110" rx="6" fill="none" stroke="#8c3b34" />
+                <text x="620" y="378" fill="#8c3b34" font-family="IBM Plex Mono, monospace" font-size="11">TWO CHAIRS</text>
+                <rect x="330" y="400" width="110" height="54" rx="27" fill="none" stroke="#1b1916" />
+                <text x="450" y="432" fill="#6e675f" font-family="IBM Plex Mono, monospace" font-size="11">YOUR SEAT</text>
+              </svg>
+              <button class="pin" type="button" style="left:47%; top:14%" data-task="1" data-cat="does" data-label="up" aria-pressed="false">01<span>The numbers</span></button>
+              <button class="pin" type="button" style="left:16%; top:48%" data-task="2" data-cat="does" aria-pressed="false">02<span>Status note</span></button>
+              <button class="pin" type="button" style="left:36%; top:44%" data-task="3" data-cat="helps" data-label="up" aria-pressed="false">03<span>Options</span></button>
+              <button class="pin" type="button" style="left:58%; top:50%" data-task="4" data-cat="helps" data-label="down" aria-pressed="false">04<span>The test</span></button>
+              <button class="pin" type="button" style="left:44%; top:74%" data-task="5" data-cat="human" data-label="up" aria-pressed="false">05<span>Workshop</span></button>
+              <button class="pin" type="button" style="left:86%; top:36%" data-task="6" data-cat="human" data-label="up" aria-pressed="false">06<span>After</span></button>
+            </div>
+          </div>
+
+          <aside class="brief" aria-live="polite">
+            <div id="overview">
+              <p class="tag"><i></i> Six stations in one room</p>
+              <h2>Pick a station.</h2>
+              <p class="quiet">These are six things a management consultant does now. In 2035, two of them finish overnight, two come back as a draft, and two stay in the room with you.</p>
+              <ul class="station-list">
+                <li><button type="button" data-task="1"><span class="num">01</span><span class="name">Pull the numbers together</span><span class="cat">AI Does It</span></button></li>
+                <li><button type="button" data-task="2"><span class="num">02</span><span class="name">Write the status note</span><span class="cat">AI Does It</span></button></li>
+                <li><button type="button" data-task="3"><span class="num">03</span><span class="name">Frame the options</span><span class="cat">AI Helps</span></button></li>
+                <li><button type="button" data-task="4"><span class="num">04</span><span class="name">Test the recommendation</span><span class="cat">AI Helps</span></button></li>
+                <li><button type="button" data-task="5"><span class="num">05</span><span class="name">Hold the client workshop</span><span class="cat">Must Stay Human</span></button></li>
+                <li><button type="button" data-task="6"><span class="num">06</span><span class="name">Stay after the decision</span><span class="cat">Must Stay Human</span></button></li>
+              </ul>
+            </div>
+
+            <article class="detail" data-task="1" hidden>
+              <p class="tag does"><i></i> AI Does It · Task 01</p>
+              <h2>Pull the numbers together.</h2>
+              <p><span class="when">Today. </span>The consultant exports the client’s files, repairs broken rows, and lines last quarter up against the year before.</p>
+              <p><span class="when">In 2035. </span>This finishes overnight. The system joins the tills, the rent, and the staff hours, checks them against the source files, and leaves a clean pack on the wall screen. No new judgment is required. The rules were agreed last week.</p>
+            </article>
+            <article class="detail" data-task="2" hidden>
+              <p class="tag does"><i></i> AI Does It · Task 02</p>
+              <h2>Write the status note.</h2>
+              <p><span class="when">Today. </span>The consultant turns the week’s work into a short note a busy client can read on a phone.</p>
+              <p><span class="when">In 2035. </span>The note writes itself from the pack: what moved, what did not, what is waiting on a person. You read it in the morning. You do not build the table by hand.</p>
+            </article>
+            <article class="detail" data-task="3" hidden>
+              <p class="tag helps"><i></i> AI Helps · Task 03</p>
+              <h2>Frame the options.</h2>
+              <p><span class="when">Today. </span>The consultant builds two or three real paths, with cost, risk, and what the company would have to stop doing.</p>
+              <p><span class="when">In 2035. </span>The model lays the paths on the table. You throw out the one that only looks brave in a chart. You keep the one the company can actually run. Nothing enters the client’s note until you accept it.</p>
+            </article>
+            <article class="detail" data-task="4" hidden>
+              <p class="tag helps"><i></i> AI Helps · Task 04</p>
+              <h2>Test the recommendation.</h2>
+              <p><span class="when">Today. </span>The consultant stresses the idea. What breaks if the price moves, if a rival copies it, if the team is smaller than the plan.</p>
+              <p><span class="when">In 2035. </span>The model runs the cases and offers a rewrite. You decide which case the client must hear, and which case is a distraction dressed up as rigor.</p>
+            </article>
+            <article class="detail" data-task="5" hidden>
+              <p class="tag human"><i></i> Must Stay Human · Task 05</p>
+              <h2>Hold the workshop.</h2>
+              <p><span class="when">Today. </span>The consultant sits in the room, asks the question that was not in the pre-read, and stays with the silence after it.</p>
+              <p><span class="when">In 2035. </span>The model can brief you. It cannot tell who is afraid to disagree with their boss. The workshop stays a conversation between people who will live with the choice.</p>
+            </article>
+            <article class="detail" data-task="6" hidden>
+              <p class="tag human"><i></i> Must Stay Human · Task 06</p>
+              <h2>Stay after the decision.</h2>
+              <p><span class="when">Today. </span>The hard part is the week after, when a habit has to change and someone calls, unsure.</p>
+              <p><span class="when">In 2035. </span>A progress summary can be prepared for you. The chair by the window is still yours. Mentorship does not transfer to a model.</p>
+            </article>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="matrix" hidden>
+        <div class="matrix-head">
+          <p class="kicker">2035 matrix</p>
+          <h2>Where the six tasks go.</h2>
+          <p class="deck">Each card starts with the work as it is done today, then says who holds it in 2035. Dim a column if you want one group on its own. All six stay on the page.</p>
+          <div class="filters" role="group" aria-label="Filter categories">
+            <button type="button" data-filter="all" aria-pressed="true">All six</button>
+            <button type="button" data-filter="does" aria-pressed="false">AI Does It</button>
+            <button type="button" data-filter="helps" aria-pressed="false">AI Helps</button>
+            <button type="button" data-filter="human" aria-pressed="false">Must Stay Human</button>
+          </div>
+        </div>
+        <div class="cols">
+          <article class="col" data-cat="does">
+            <header>
+              <p class="tag does"><i></i> AI Does It</p>
+              <h3>The model finishes it.</h3>
+              <p>The rules are already agreed. The run happens without you, and a pack is waiting in the morning.</p>
+            </header>
+            <article class="card">
+              <div class="num">Task 01</div>
+              <h4>Pull the numbers together</h4>
+              <p><span class="when">Today. </span>Export the files, repair broken rows, and line one quarter up against the year before.</p>
+              <p><span class="when">In 2035. </span>Overnight, the tills, the rent, and the staff hours are joined and checked against the source files.</p>
+            </article>
+            <article class="card">
+              <div class="num">Task 02</div>
+              <h4>Write the status note</h4>
+              <p><span class="when">Today. </span>Turn the week into a short note a client can read on a phone.</p>
+              <p><span class="when">In 2035. </span>The note is drafted from the pack. You read it. You do not build the table.</p>
+            </article>
+          </article>
+          <article class="col" data-cat="helps">
+            <header>
+              <p class="tag helps"><i></i> AI Helps</p>
+              <h3>A draft, then your call.</h3>
+              <p>The model brings paths and cases. The client only sees what you accept.</p>
+            </header>
+            <article class="card">
+              <div class="num">Task 03</div>
+              <h4>Frame the options</h4>
+              <p><span class="when">Today. </span>Build two or three paths, with cost, risk, and what the company would stop doing.</p>
+              <p><span class="when">In 2035. </span>The paths arrive laid out. You cut the one that only looks brave, and you keep the one the company can run.</p>
+            </article>
+            <article class="card">
+              <div class="num">Task 04</div>
+              <h4>Test the recommendation</h4>
+              <p><span class="when">Today. </span>Ask what breaks if the price moves, a rival copies it, or the team is smaller than the plan.</p>
+              <p><span class="when">In 2035. </span>The cases are run for you. You choose which case is the one the room must hear.</p>
+            </article>
+          </article>
+          <article class="col" data-cat="human">
+            <header>
+              <p class="tag human"><i></i> Must Stay Human</p>
+              <h3>The room keeps these.</h3>
+              <p>What fails here is not a formula. It is a misread of a person, and the responsibility stays with you.</p>
+            </header>
+            <article class="card">
+              <div class="num">Task 05</div>
+              <h4>Hold the client workshop</h4>
+              <p><span class="when">Today. </span>Ask the question that was not in the pre-read, and stay with the silence after it.</p>
+              <p><span class="when">In 2035. </span>A briefing can be prepared. Nobody in the model can hear who is afraid to disagree with their boss.</p>
+            </article>
+            <article class="card">
+              <div class="num">Task 06</div>
+              <h4>Stay after the decision</h4>
+              <p><span class="when">Today. </span>The week after is when a habit has to change and someone calls, unsure.</p>
+              <p><span class="when">In 2035. </span>The summary can be printed. The conversation in the two chairs by the window cannot be delegated.</p>
+            </article>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="day" hidden>
+        <div class="day-layout">
+          <div>
+            <p class="kicker">One working day</p>
+            <h2>Tuesday, 14 March 2035.</h2>
+            <p class="deck">A retail client in Tashkent is deciding which stores are full and still lose money. The six tasks of the job are spread across the hours.</p>
+            <div class="hours" role="group" aria-label="Hours of the day">
+              <button type="button" data-hour="all" aria-pressed="true"><strong>All</strong>The whole shift</button>
+              <button type="button" data-hour="morning" aria-pressed="false"><strong>Morning</strong>You set the question</button>
+              <button type="button" data-hour="afternoon" aria-pressed="false"><strong>Afternoon</strong>You edit the draft</button>
+              <button type="button" data-hour="evening" aria-pressed="false"><strong>Evening</strong>You sign the note</button>
+            </div>
+
+            <article class="block" id="morning" data-hour="morning">
+              <div>
+                <h3>Morning</h3>
+                <p class="ref">08:30 · 25 minutes</p>
+              </div>
+              <div class="you">
+                <p class="who">You</p>
+                <p>With the partner, one sentence goes on the board: which stores are busy and still lose money. That sentence is the work. Until it exists, the three packs on the screen are just three neat piles.</p>
+                <p class="ref">Task 05 begins here · agreeing what the people in the room actually need</p>
+              </div>
+              <div class="ai">
+                <p class="who">The model, before you arrived</p>
+                <p>Joined 1,840 days of tills, rent, and staff hours. Checked them against the source files. Wrote the status note. Flagged two stores where the rent case fails. It did not choose the question.</p>
+                <p class="ref">Tasks 01 and 02 · the numbers and the status note</p>
+              </div>
+            </article>
+
+            <article class="block" id="afternoon" data-hour="afternoon">
+              <div>
+                <h3>Afternoon</h3>
+                <p class="ref">11:20 – 16:10</p>
+              </div>
+              <div class="you">
+                <p class="who">You, with the model beside you</p>
+                <p>Three options are on the table. Option B closes the most stores and looks efficient. It also leaves a neighborhood the brand promised not to abandon. You cut B. The efficiency was a trick, and you are the person who will say it out loud.</p>
+                <p>You rewrite the opening line yourself. The draft was smooth and empty. Then you ask for one thing only: rerun the rent case on the stores you kept. You read every line before it can enter the shared note.</p>
+                <p>A figure in the staff-hours file is wrong for two sites. The model offers a cause and a fix. You check the cause against the store manager’s log, then you accept the fix. Close to the meeting, a fast correction is more dangerous than the error.</p>
+                <p class="ref">Tasks 03 and 04 · options and the test of the advice</p>
+              </div>
+              <div class="ai">
+                <p class="who">What the model does in the day</p>
+                <p>Lays out the paths, marks the one that hides a promise, reruns the narrow case you asked for, and keeps the failed checks open. It does not press “send to the client.” That action is yours.</p>
+              </div>
+            </article>
+
+            <article class="block" id="evening" data-hour="evening">
+              <div>
+                <h3>Evening</h3>
+                <p class="ref">18:05</p>
+              </div>
+              <div class="you">
+                <p class="who">You</p>
+                <p>The founder stays after the others leave. She asks whether she is failing. You do not hand her the printout. You ask which promise the company still means, and you wait. Eight minutes of that is worth more than the whole pack.</p>
+                <p>Then the note. The question was never the commas. It was whether the people who run the stores will understand what was decided. You are the one who signs it. If the advice is wrong, they call you.</p>
+                <p class="ref">Tasks 05 and 06 · the workshop, and staying after</p>
+              </div>
+              <div class="ai">
+                <p class="who">The model by this hour</p>
+                <p>The checks are clean. The list of changes is written. The night pack is attached. At the door of the signature, it stops. It has no right to sign.</p>
+              </div>
+            </article>
+          </div>
+
+          <aside class="brief signoff" id="signoff">
+            <div>
+              <p class="kicker">The note</p>
+              <h2>Signed at the end of the room.</h2>
+              <p>Option A goes to the client: price and promise stay visible together. The packs, the cases, and the list of changes were prepared by the model.</p>
+              <button class="sign" type="button" id="sign">Sign the note</button>
+              <p id="signed" hidden>Signed at 18:41. The reason is in your handwriting. The draft does not carry a signature.</p>
+            </div>
+            <div>
+              <div class="stamp" aria-hidden="true">Signed<br />by you<br />18:41</div>
+              <p class="quiet">AI Does It prepared the night pack. AI Helps brought the options and the rent case, and you edited both. Must Stay Human is the sentence on the board, the cut of option B, the founder’s question, and this signature.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var status = document.getElementById("status");
+      var overview = document.getElementById("overview");
+      var currentTask = null;
+
+      function selectTask(id) {
+        var next = currentTask === id ? null : id;
+        currentTask = next;
+        document.querySelectorAll(".pin, .station-list button").forEach(function (el) {
+          var on = el.dataset.task === next;
+          el.classList.toggle("is-on", on);
+          if (el.classList.contains("pin")) el.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        document.querySelectorAll(".detail").forEach(function (el) {
+          el.hidden = el.dataset.task !== next;
+        });
+        overview.hidden = !!next;
+        var names = {
+          1: "Task 01 · AI Does It · the numbers",
+          2: "Task 02 · AI Does It · the status note",
+          3: "Task 03 · AI Helps · the options",
+          4: "Task 04 · AI Helps · the test",
+          5: "Task 05 · Must Stay Human · the workshop",
+          6: "Task 06 · Must Stay Human · after the decision"
+        };
+        status.textContent = next ? names[next] : "Six tasks on the table";
+      }
+
+      document.querySelectorAll("[data-task]").forEach(function (el) {
+        if (el.classList.contains("detail")) return;
+        el.addEventListener("click", function () { selectTask(el.dataset.task); });
+      });
+
+      document.querySelectorAll("[data-screen]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var screen = btn.dataset.screen;
+          document.querySelectorAll(".view").forEach(function (view) {
+            view.hidden = view.id !== screen;
+          });
+          document.querySelectorAll("[data-screen]").forEach(function (b) {
+            b.setAttribute("aria-pressed", b.dataset.screen === screen ? "true" : "false");
+          });
+          var labels = {
+            room: "Room · six stations",
+            matrix: "Matrix · three categories",
+            day: "Tuesday 14 March 2035"
+          };
+          status.textContent = labels[screen];
+          if (!reduce) window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+
+      var filter = "all";
+      document.querySelectorAll("[data-filter]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          filter = btn.dataset.filter === filter && filter !== "all" ? "all" : btn.dataset.filter;
+          document.querySelectorAll(".col").forEach(function (col) {
+            col.classList.toggle("dim", filter !== "all" && col.dataset.cat !== filter);
+          });
+          document.querySelectorAll("[data-filter]").forEach(function (b) {
+            b.setAttribute("aria-pressed", b.dataset.filter === filter ? "true" : "false");
+          });
+        });
+      });
+
+      var hour = "all";
+      document.querySelectorAll(".hours button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          hour = btn.dataset.hour;
+          document.querySelectorAll(".block").forEach(function (block) {
+            block.classList.toggle("dim", hour !== "all" && block.dataset.hour !== hour);
+          });
+          document.querySelectorAll(".hours button").forEach(function (b) {
+            b.setAttribute("aria-pressed", b.dataset.hour === hour ? "true" : "false");
+          });
+        });
+      });
+
+      var sign = document.getElementById("sign");
+      sign.addEventListener("click", function () {
+        document.getElementById("signoff").classList.add("is-signed");
+        document.getElementById("signed").hidden = false;
+        sign.textContent = "Signed · 18:41";
+        sign.disabled = true;
+      });
+    })();
+  </script>
+</body>
+</html>
