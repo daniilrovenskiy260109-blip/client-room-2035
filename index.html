@@ -187,7 +187,7 @@
     .tag.human i { background: var(--human); }
     .brief p { margin: 0 0 12px; }
     .station-list { list-style: none; margin: 22px 0 0; padding: 0; }
-    .station-list button {
+    .station-list > li > button {
       width: 100%;
       text-align: left;
       display: grid;
@@ -197,9 +197,27 @@
       padding: 11px 0;
       border-top: 1px solid var(--line);
     }
-    .station-list li:last-child button { border-bottom: 1px solid var(--line); }
+    .station-list li:last-child > button { border-bottom: 1px solid var(--line); }
     .station-list .name { color: var(--ink); font-weight: 400; }
-    .station-list button:hover .name { text-decoration: underline; text-underline-offset: 3px; }
+    .station-list > li > button:hover .name,
+    .station-list > li > button.is-on .name { text-decoration: underline; text-underline-offset: 3px; }
+    .station-list .detail {
+      padding: 2px 0 16px 40px;
+      border-bottom: 1px solid var(--line);
+    }
+    .station-list li:has(.detail:not([hidden])) > button { border-bottom: 0; }
+    .station-list li:last-child:has(.detail:not([hidden])) > button { border-bottom: 0; }
+    .detail-nav { display: flex; gap: 18px; margin-top: 14px; }
+    .detail-nav button {
+      width: auto;
+      padding: 0 0 2px;
+      border: 0;
+      border-bottom: 1px solid var(--ink);
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
 
     .matrix-head { max-width: 640px; }
     .matrix-head h2 { font-size: clamp(52px, 6vw, 80px); margin: 0 0 14px; }
@@ -399,51 +417,61 @@
               <h2>Pick a station.</h2>
               <p class="quiet">These are six things a management consultant does now. In 2035, two of them finish overnight, two come back as a draft, and two stay in the room with you.</p>
               <ul class="station-list">
-                <li><button type="button" data-task="1"><span class="num">01</span><span class="name">Pull the numbers together</span><span class="cat">AI Does It</span></button></li>
-                <li><button type="button" data-task="2"><span class="num">02</span><span class="name">Write the status note</span><span class="cat">AI Does It</span></button></li>
-                <li><button type="button" data-task="3"><span class="num">03</span><span class="name">Frame the options</span><span class="cat">AI Helps</span></button></li>
-                <li><button type="button" data-task="4"><span class="num">04</span><span class="name">Test the recommendation</span><span class="cat">AI Helps</span></button></li>
-                <li><button type="button" data-task="5"><span class="num">05</span><span class="name">Hold the client workshop</span><span class="cat">Must Stay Human</span></button></li>
-                <li><button type="button" data-task="6"><span class="num">06</span><span class="name">Stay after the decision</span><span class="cat">Must Stay Human</span></button></li>
+                <li>
+                  <button type="button" data-task="1"><span class="num">01</span><span class="name">Pull the numbers together</span><span class="cat">AI Does It</span></button>
+                  <div class="detail" data-task="1" hidden>
+                    <p class="tag does"><i></i> AI Does It · Task 01</p>
+                    <p><span class="when">Today. </span>The consultant exports the client’s files, repairs broken rows, and lines last quarter up against the year before.</p>
+                    <p><span class="when">In 2035. </span>This finishes overnight. The system joins the tills, the rent, and the staff hours, checks them against the source files, and leaves a clean pack on the wall screen. No new judgment is required. The rules were agreed last week.</p>
+                    <div class="detail-nav"><button type="button" data-goto="6">Previous</button><button type="button" data-goto="2">Next</button></div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" data-task="2"><span class="num">02</span><span class="name">Write the status note</span><span class="cat">AI Does It</span></button>
+                  <div class="detail" data-task="2" hidden>
+                    <p class="tag does"><i></i> AI Does It · Task 02</p>
+                    <p><span class="when">Today. </span>The consultant turns the week’s work into a short note a busy client can read on a phone.</p>
+                    <p><span class="when">In 2035. </span>The note writes itself from the pack: what moved, what did not, what is waiting on a person. You read it in the morning. You do not build the table by hand.</p>
+                    <div class="detail-nav"><button type="button" data-goto="1">Previous</button><button type="button" data-goto="3">Next</button></div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" data-task="3"><span class="num">03</span><span class="name">Frame the options</span><span class="cat">AI Helps</span></button>
+                  <div class="detail" data-task="3" hidden>
+                    <p class="tag helps"><i></i> AI Helps · Task 03</p>
+                    <p><span class="when">Today. </span>The consultant builds two or three real paths, with cost, risk, and what the company would have to stop doing.</p>
+                    <p><span class="when">In 2035. </span>The model lays the paths on the table. You throw out the one that only looks brave in a chart. You keep the one the company can actually run. Nothing enters the client’s note until you accept it.</p>
+                    <div class="detail-nav"><button type="button" data-goto="2">Previous</button><button type="button" data-goto="4">Next</button></div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" data-task="4"><span class="num">04</span><span class="name">Test the recommendation</span><span class="cat">AI Helps</span></button>
+                  <div class="detail" data-task="4" hidden>
+                    <p class="tag helps"><i></i> AI Helps · Task 04</p>
+                    <p><span class="when">Today. </span>The consultant stresses the idea. What breaks if the price moves, if a rival copies it, if the team is smaller than the plan.</p>
+                    <p><span class="when">In 2035. </span>The model runs the cases and offers a rewrite. You decide which case the client must hear, and which case is a distraction dressed up as rigor.</p>
+                    <div class="detail-nav"><button type="button" data-goto="3">Previous</button><button type="button" data-goto="5">Next</button></div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" data-task="5"><span class="num">05</span><span class="name">Hold the client workshop</span><span class="cat">Must Stay Human</span></button>
+                  <div class="detail" data-task="5" hidden>
+                    <p class="tag human"><i></i> Must Stay Human · Task 05</p>
+                    <p><span class="when">Today. </span>The consultant sits in the room, asks the question that was not in the pre-read, and stays with the silence after it.</p>
+                    <p><span class="when">In 2035. </span>The model can brief you. It cannot tell who is afraid to disagree with their boss. The workshop stays a conversation between people who will live with the choice.</p>
+                    <div class="detail-nav"><button type="button" data-goto="4">Previous</button><button type="button" data-goto="6">Next</button></div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" data-task="6"><span class="num">06</span><span class="name">Stay after the decision</span><span class="cat">Must Stay Human</span></button>
+                  <div class="detail" data-task="6" hidden>
+                    <p class="tag human"><i></i> Must Stay Human · Task 06</p>
+                    <p><span class="when">Today. </span>The hard part is the week after, when a habit has to change and someone calls, unsure.</p>
+                    <p><span class="when">In 2035. </span>A progress summary can be prepared for you. The chair by the window is still yours. Mentorship does not transfer to a model.</p>
+                    <div class="detail-nav"><button type="button" data-goto="5">Previous</button><button type="button" data-goto="1">Next</button></div>
+                  </div>
+                </li>
               </ul>
-            </div>
-
-            <article class="detail" data-task="1" hidden>
-              <p class="tag does"><i></i> AI Does It · Task 01</p>
-              <h2>Pull the numbers together.</h2>
-              <p><span class="when">Today. </span>The consultant exports the client’s files, repairs broken rows, and lines last quarter up against the year before.</p>
-              <p><span class="when">In 2035. </span>This finishes overnight. The system joins the tills, the rent, and the staff hours, checks them against the source files, and leaves a clean pack on the wall screen. No new judgment is required. The rules were agreed last week.</p>
-            </article>
-            <article class="detail" data-task="2" hidden>
-              <p class="tag does"><i></i> AI Does It · Task 02</p>
-              <h2>Write the status note.</h2>
-              <p><span class="when">Today. </span>The consultant turns the week’s work into a short note a busy client can read on a phone.</p>
-              <p><span class="when">In 2035. </span>The note writes itself from the pack: what moved, what did not, what is waiting on a person. You read it in the morning. You do not build the table by hand.</p>
-            </article>
-            <article class="detail" data-task="3" hidden>
-              <p class="tag helps"><i></i> AI Helps · Task 03</p>
-              <h2>Frame the options.</h2>
-              <p><span class="when">Today. </span>The consultant builds two or three real paths, with cost, risk, and what the company would have to stop doing.</p>
-              <p><span class="when">In 2035. </span>The model lays the paths on the table. You throw out the one that only looks brave in a chart. You keep the one the company can actually run. Nothing enters the client’s note until you accept it.</p>
-            </article>
-            <article class="detail" data-task="4" hidden>
-              <p class="tag helps"><i></i> AI Helps · Task 04</p>
-              <h2>Test the recommendation.</h2>
-              <p><span class="when">Today. </span>The consultant stresses the idea. What breaks if the price moves, if a rival copies it, if the team is smaller than the plan.</p>
-              <p><span class="when">In 2035. </span>The model runs the cases and offers a rewrite. You decide which case the client must hear, and which case is a distraction dressed up as rigor.</p>
-            </article>
-            <article class="detail" data-task="5" hidden>
-              <p class="tag human"><i></i> Must Stay Human · Task 05</p>
-              <h2>Hold the workshop.</h2>
-              <p><span class="when">Today. </span>The consultant sits in the room, asks the question that was not in the pre-read, and stays with the silence after it.</p>
-              <p><span class="when">In 2035. </span>The model can brief you. It cannot tell who is afraid to disagree with their boss. The workshop stays a conversation between people who will live with the choice.</p>
-            </article>
-            <article class="detail" data-task="6" hidden>
-              <p class="tag human"><i></i> Must Stay Human · Task 06</p>
-              <h2>Stay after the decision.</h2>
-              <p><span class="when">Today. </span>The hard part is the week after, when a habit has to change and someone calls, unsure.</p>
-              <p><span class="when">In 2035. </span>A progress summary can be prepared for you. The chair by the window is still yours. Mentorship does not transfer to a model.</p>
-            </article>
           </aside>
         </div>
       </section>
@@ -610,21 +638,20 @@
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       var status = document.getElementById("status");
-      var overview = document.getElementById("overview");
       var currentTask = null;
 
-      function selectTask(id) {
-        var next = currentTask === id ? null : id;
+      function selectTask(id, keepOpen) {
+        var next = !keepOpen && currentTask === id ? null : id;
         currentTask = next;
-        document.querySelectorAll(".pin, .station-list button").forEach(function (el) {
+        document.querySelectorAll(".pin, .station-list > li > button").forEach(function (el) {
           var on = el.dataset.task === next;
           el.classList.toggle("is-on", on);
+          el.setAttribute("aria-expanded", on ? "true" : "false");
           if (el.classList.contains("pin")) el.setAttribute("aria-pressed", on ? "true" : "false");
         });
         document.querySelectorAll(".detail").forEach(function (el) {
           el.hidden = el.dataset.task !== next;
         });
-        overview.hidden = !!next;
         var names = {
           1: "Task 01 · AI Does It · the numbers",
           2: "Task 02 · AI Does It · the status note",
@@ -634,11 +661,17 @@
           6: "Task 06 · Must Stay Human · after the decision"
         };
         status.textContent = next ? names[next] : "Six tasks on the table";
+        if (next && !reduce) {
+          var open = document.querySelector('.station-list .detail[data-task="' + next + '"]');
+          if (open) open.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
       }
 
-      document.querySelectorAll("[data-task]").forEach(function (el) {
-        if (el.classList.contains("detail")) return;
-        el.addEventListener("click", function () { selectTask(el.dataset.task); });
+      document.querySelectorAll(".pin, .station-list > li > button").forEach(function (el) {
+        el.addEventListener("click", function () { selectTask(el.dataset.task, false); });
+      });
+      document.querySelectorAll("[data-goto]").forEach(function (el) {
+        el.addEventListener("click", function () { selectTask(el.dataset.goto, true); });
       });
 
       document.querySelectorAll("[data-screen]").forEach(function (btn) {
